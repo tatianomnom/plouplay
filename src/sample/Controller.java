@@ -26,6 +26,8 @@ public class Controller {
 
     private MediaPlayer mediaPlayer;
 
+    private Media media;
+
     @FXML
     protected void initialize() {
     }
@@ -60,16 +62,36 @@ public class Controller {
 
         if (file != null) {
 
-            Media media;
+            fileChooser.setInitialDirectory(file.getParentFile());
 
             try {
                 media = new Media(file.toURI().toURL().toString());
+
+                if (mediaPlayer != null) {
+                    mediaPlayer.stop();
+                }
+
                 mediaPlayer = new MediaPlayer(media);
 
-                mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) ->
-                        progress.progressProperty().setValue(newValue.toSeconds() / mediaPlayer.totalDurationProperty().getValue().toSeconds()));
+                mediaPlayer.setOnReady(() -> {
+                    caption.setText(media.getMetadata().get("artist").toString());
+                });
+
+                mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
+                    if (mediaPlayer.totalDurationProperty().getValue() != null) { //TODO why this null happens during change of track?
+                        progress.progressProperty().setValue(newValue.toSeconds() / mediaPlayer.totalDurationProperty().getValue().toSeconds());
+                    }
+                });
+
+                mediaPlayer.setOnEndOfMedia(() -> {
+                    mediaPlayer.stop();
+                    progress.progressProperty().setValue(0);
+                    playPause.setText("Play");
+                    caption.setText("Stopped");
+                });
 
                 mediaPlayer.play();
+
                 playPause.setText("Pause");
             } catch (MalformedURLException e) {
                 e.printStackTrace();
