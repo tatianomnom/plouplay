@@ -7,6 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -14,6 +15,8 @@ import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
 public class Controller {
+    @FXML
+    private ListView<String> playList;
     @FXML
     private ProgressBar progress;
     @FXML
@@ -77,6 +80,7 @@ public class Controller {
 
             mediaPlayer.setOnReady(() -> {
                 caption.setText(media.getMetadata().get("artist").toString());
+                playList.getItems().add(media.getMetadata().get("artist").toString());
             });
 
             progress.setOnMouseClicked(event -> {
