@@ -2,13 +2,17 @@ package sample;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
@@ -34,6 +38,17 @@ public class Controller {
 
     @FXML
     protected void initialize() {
+        playList.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                try {
+                    String selectedItem = playList.getSelectionModel().getSelectedItem();
+                    openFile(new File(new URI(selectedItem)));
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @FXML
@@ -80,7 +95,9 @@ public class Controller {
 
             mediaPlayer.setOnReady(() -> {
                 caption.setText(media.getMetadata().get("artist").toString());
-                playList.getItems().add(media.getMetadata().get("artist").toString());
+                if (!playList.getItems().contains(media.getSource())) {
+                    playList.getItems().add(media.getSource());
+                }
             });
 
             progress.setOnMouseClicked(event -> {
